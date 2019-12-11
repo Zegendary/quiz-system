@@ -2,36 +2,27 @@ import React from 'react'
 import Head from 'next/head'
 import Nav from '../components/nav'
 
-const Home = () => (
+const Home = ({user}) => (
   <div>
     <Head>
-      <title>Home</title>
+      <title>答卷系统</title>
       <link rel="icon" href="/favicon.ico" />
     </Head>
 
-    <Nav />
+    <Nav user={user}/>
 
     <div className="hero">
-      <h1 className="title">Welcome to Next.js!</h1>
-      <p className="description">
-        To get started, edit <code>pages/index.js</code> and save to reload.
-      </p>
+      <h1 className="title">欢迎来到答卷系统</h1>
 
       <div className="row">
-        <a href="https://nextjs.org/docs" className="card">
-          <h3>Documentation &rarr;</h3>
-          <p>Learn more about Next.js in the documentation.</p>
+        <a href="createQuiz" className="card">
+          <h3>新建答卷 &rarr;</h3>
         </a>
-        <a href="https://nextjs.org/learn" className="card">
-          <h3>Next.js Learn &rarr;</h3>
-          <p>Learn about Next.js by following an interactive tutorial!</p>
+        <a href="/dashboard" className="card">
+          <h3>控制台 &rarr;</h3>
         </a>
-        <a
-          href="https://github.com/zeit/next.js/tree/master/examples"
-          className="card"
-        >
-          <h3>Examples &rarr;</h3>
-          <p>Find other example boilerplates on the Next.js GitHub.</p>
+        <a href="/quizzes" className="card">
+          <h3>试卷列表 &rarr;</h3>
         </a>
       </div>
     </div>
