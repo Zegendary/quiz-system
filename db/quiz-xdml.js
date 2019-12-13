@@ -1,5 +1,5 @@
-var Sequelize = require('sequelize');
-var path = require('path');
+const Sequelize = require('sequelize');
+const path = require('path');
 
 const sequelize = new Sequelize(undefined,undefined, undefined, {
   host: 'localhost',

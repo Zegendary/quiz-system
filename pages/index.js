@@ -1,79 +1,104 @@
 import React from 'react'
 import Head from 'next/head'
 import Nav from '../components/nav'
+import { List, Avatar, Button, Skeleton } from 'antd';
+import axios from 'axios'
 
-const Home = ({user}) => (
-  <div>
-    <Head>
-      <title>答卷系统</title>
-      <link rel="icon" href="/favicon.ico" />
-    </Head>
+const Home = (props) => {
+  const [state, setState] = React.useState({
+    quizzes: [],
+    initLoading: true,
+    page: 1,
+    totalCount: 1,
+    keyword: ''
+  });
 
-    <Nav user={user}/>
+  const { user } = props
+  const {quizzes, initLoading, keyword, page, totalPage} = state
 
-    <div className="hero">
-      <h1 className="title">欢迎来到答卷系统</h1>
+  React.useEffect(() => {
+    getQuizzes(1)
+  }, [])
 
-      <div className="row">
-        <a href="createQuiz" className="card">
-          <h3>新建答卷 &rarr;</h3>
-        </a>
-        <a href="/dashboard" className="card">
-          <h3>控制台 &rarr;</h3>
-        </a>
-        <a href="/quizzes" className="card">
-          <h3>试卷列表 &rarr;</h3>
-        </a>
+  const onLoadMore = () => {
+    getQuizzes(state.page + 1)
+  }
+
+  const getQuizzes = (page) => {
+    setState({...state, initLoading: true})
+    axios.get('/api/quizzes', {
+      params: {
+        page,
+        keyword: state.keyword
+      }
+    }).then((response) =>{
+      setState({
+        ...state,
+        quizzes: [quizzes, ...response.data.quizzes],
+        initLoading: false,
+        page: response.data.page,
+        totalPage: response.data.totalPage
+      })
+    })
+  }
+
+  const loadMore =
+    !initLoading && (page !== totalPage) ? (
+      <div
+        style={{
+          textAlign: 'center',
+          marginTop: 12,
+          height: 32,
+          lineHeight: '32px',
+        }}
+      >
+        <Button onClick={onLoadMore}>加载更多</Button>
       </div>
-    </div>
+    ) : null;
 
-    <style jsx>{`
-      .hero {
-        width: 100%;
-        color: #333;
-      }
-      .title {
-        margin: 0;
-        width: 100%;
-        padding-top: 80px;
-        line-height: 1.15;
-        font-size: 48px;
-      }
-      .title,
-      .description {
-        text-align: center;
-      }
-      .row {
-        max-width: 880px;
-        margin: 80px auto 40px;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-      }
-      .card {
-        padding: 18px 18px 24px;
-        width: 220px;
-        text-align: left;
-        text-decoration: none;
-        color: #434343;
-        border: 1px solid #9b9b9b;
-      }
-      .card:hover {
-        border-color: #067df7;
-      }
-      .card h3 {
-        margin: 0;
-        color: #067df7;
-        font-size: 18px;
-      }
-      .card p {
-        margin: 0;
-        padding: 12px 0 0;
-        font-size: 13px;
-        color: #333;
-      }
-    `}</style>
-  </div>
-)
+  return (
+    <div>
+      <Head>
+        <title>答卷系统-首页</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <Nav user={user}/>
+
+      <div className="main">
+        <List
+          loading={initLoading}
+          itemLayout="horizontal"
+          loadMore={loadMore}
+          dataSource={quizzes}
+          renderItem={item => (
+            <List.Item
+              actions={[<a key="list-loadmore-edit">edit</a>, <a key="list-loadmore-more">more</a>]}
+            >
+              <Skeleton avatar title={false} loading={item.loading} active>
+                <List.Item.Meta
+                  avatar={
+                    <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
+                  }
+                  title={<a href="https://ant.design">{item.name.last}</a>}
+                  description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+                />
+                <div>content</div>
+              </Skeleton>
+            </List.Item>
+          )}
+        />
+      </div>
+
+      <style jsx>{`
+        .main {
+          max-width: 1000px;
+          margin: auto;
+          color: #333;
+        }
+      `}</style>
+    </div>
+  )
+}
 
 export default Home
