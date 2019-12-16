@@ -8,105 +8,112 @@ import DragableTable from '../components/DragableTable'
 const columns = [
   {
     title: '题目',
-    dataIndex: 'name',
+    dataIndex: 'answerable.content',
   },
   {
     title: '类型',
-    dataIndex: 'type',
+    dataIndex: 'answerable_type',
+    render: (text, record, index) => {
+      return text === 'ChoiceQuestion' ? '选择题': '填空题'
+    },
+    width: 100
   }
-];
-
-const columns1 = [
-  {
-    title: '题目',
-    dataIndex: 'name',
-  },
-  {
-    title: '类型',
-    dataIndex: 'type',
-  },
-  {
-    title: '操作',
-    render: (text, record, index) => <>
-      <Button size='small' onClick={() => editQuestion(text, index)}>编辑</Button>
-      <Button size='small' style={{marginLeft: '4px'}} type="danger" onClick={() => deleteQuestion(index)}>删除</Button>
-    </>
-  }
-];
-
-const editQuestion = (text, index) => {
-  console.log("index",index, "record",text)
-}
-
-const deleteQuestion = (index) => {
-  console.log("index",index)
-}
-
-const data2 = [
-  {
-    name: 'John Brown',
-    type: 'New York No. 1 Lake Park',
-  },
-  {
-    name: 'Jim Green',
-    type: 'London No. 1 Lake Park',
-  },
-  {
-    name: 'Joe Black',
-    type: 'Sidney No. 1 Lake Park',
-  },
-  {
-    name: 'Disabled User',
-    type: 'Sidney No. 1 Lake Park',
-  },
 ];
 
 const CreateQuiz = (props) => {
   const [questions, setQuestions] = React.useState([])
   const [selectedRows, setSelectedRows] = React.useState([])
-  const [newQuestions, setNewQuestions] = React.useState(data2)
+  const [newQuestions, setNewQuestions] = React.useState([])
+  const [courseIds, setCourseIds] = React.useState([])
   const [pager, setPager] = React.useState({
     page: 1,
     totalCount: 1
   })
-  const fetchQuestions = (value) => {
-    console.log(value)
+
+  const onSelect = (value) => {
+    let ids = value.map(v => v.key)
+    setCourseIds(ids)
+    fetchQuestions({
+      courseIds: ids,
+      page: 1
+    })
+  }
+
+  const fetchQuestions = (params) => {
     axios("/api/questions",{
-      params: {
-        courseIds: value.map(v => v.key)
-      }
+      params: params
     }).then(response => {
       setQuestions(response.data.questions)
-      setPager(response.data.page)
+      setPager(response.data.pager)
     });
   }
 
-  const data = [
-    {
-      name: 'John Brown',
-      type: 'New York No. 1 Lake Park',
-    },
-    {
-      name: 'Jim Green',
-      type: 'London No. 1 Lake Park',
-    },
-    {
-      name: 'Joe Black',
-      type: 'Sidney No. 1 Lake Park',
-    },
-    {
-      name: 'Disabled User',
-      type: 'Sidney No. 1 Lake Park',
-    },
-  ];
+  const pageOnChange = (value) => {
+    fetchQuestions({
+      courseIds,
+      page: value
+    })
+  }
 
   const rowSelection = {
-    selectedRows,
+    selectedRowKeys: selectedRows.map(r => r.id),
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedRows(selectedRows)
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
     }
   };
+
+  const onImport = () => {
+    const questions = selectedRows.map(r => {
+      return {
+        content: r.answerable.content,
+        type: r.answerable_type,
+        options: r.answerable.options,
+        answers: r.answerable.answers,
+        preprocessor: r.answerable.preprocessor
+      }
+    })
+    setNewQuestions([...newQuestions, ...questions])
+    setSelectedRows([])
+  }
+
+  const columns1 = [
+    {
+      title: '题目',
+      dataIndex: 'content',
+    },
+    {
+      title: '类型',
+      dataIndex: 'type',
+      render: (text, record, index) => {
+        return text === 'ChoiceQuestion' ? '选择题': '填空题'
+      },
+      width: 100
+    },
+    {
+      title: '操作',
+      width: 130,
+      render: (text, record, index) => <>
+        <Button size='small' onClick={() => editQuestion(text, index)}>编辑</Button>
+        <Button size='small' style={{marginLeft: '4px'}} type="danger" onClick={() => deleteQuestion(index)}>删除</Button>
+      </>
+    }
+  ];
+
+  const editQuestion = (text, index) => {
+    console.log("index",index, "record",text)
+  }
+
+  const deleteQuestion = (index) => {
+    console.log("index",index)
+  }
+
+  const onSubmit = () => {
+    axios.post('/api/quizzes', {
+      questions: newQuestions
+    }).then((response)=>{
+      console.log(response)
+    })
+  }
 
   return <div>
     <Head>
@@ -114,19 +121,19 @@ const CreateQuiz = (props) => {
       <link rel="icon" href="/favicon.ico" />
     </Head>
     <div className="main">
-
       <SearchSelect resourceName="courses" mapper={(course) =>{
         return {value: course.id, text: course.name}
-      }} onSelect={fetchQuestions}/>
+      }} onSelect={onSelect}/>
 
       <div className="actionWrapper">
         <div className="tableWrapper">
-          <Table rowKey="name" rowSelection={rowSelection} columns={columns} dataSource={data} size="small" />
+          <Table rowKey="id" pagination={{current: pager.page, total: pager.totalCount, onChange: pageOnChange}}
+                 rowSelection={rowSelection} columns={columns} dataSource={questions} size="small" />
         </div>
         <div className="action">
-          <Button disabled={selectedRows.length === 0}>导入 &rarr;</Button>
-          <Button disabled={newQuestions.length === 0}>保存</Button>
-          <Button type="primary">新建</Button>
+          <Button disabled={selectedRows.length === 0} onClick={onImport}>导入 &rarr;</Button>
+          <Button disabled={newQuestions.length === 0} onClick={onSubmit}>提交</Button>
+          {/*<Button type="primary">添加</Button>*/}
         </div>
         <div className="tableWrapper">
           <DragableTable columns={columns1} data={newQuestions} setData={setNewQuestions}/>

@@ -1,35 +1,22 @@
 const express = require('express')
 const next = require('next')
-
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const port = parseInt(process.env.PORT, 10) || 3000
 const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
-const taskCenterDb = require('./db/task-center');
+const api = require('./api')
 
 app.prepare().then(() => {
-  const server = express()
+  const server = express();
+  server.use(bodyParser.json());
+  server.use(bodyParser.urlencoded({ extended: false }));
+  server.use(cookieParser());
+  // api
+  server.use('/api', api)
 
-  server.get('/api/courses', async (req, res) => {
-    const {rows} = await taskCenterDb.query("SELECT id, name FROM courses WHERE name LIKE $1 limit 10", [`%${req.query.keyword}%`])
-    res.send({data: rows})
-  })
-
-  server.get('/api/questions', async (req, res) => {
-    console.log(req.query.courseIds)
-
-    // const {rows} = await taskCenterDb.query("SELECT id, name FROM courses WHERE name LIKE $1 limit 10", [`%${req.query.keyword}%`])
-
-
-    res.send({data: [], pager: {page: 1, totalCount: 1}})
-  })
-
-  server.get('/api/quizzes', async (req, res) => {
-    console.log(req.query.courseIds)
-    // const {rows} = await taskCenterDb.query("SELECT id, name FROM courses WHERE name LIKE $1 limit 10", [`%${req.query.keyword}%`])
-    res.send({data: []})
-  })
-
+  // view
   server.get('/', (req, res) => {
     console.log(req)
     console.log(res)
@@ -39,6 +26,7 @@ app.prepare().then(() => {
   server.get('/dashboard', (req, res) => {
     return app.render(req, res, '/dashboard', req.query)
   })
+
 
   server.get('/quiz/:id', (req, res) => {
     return app.render(req, res, '/quiz', { id: req.params.id })

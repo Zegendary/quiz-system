@@ -89,6 +89,7 @@ class DragableTable extends React.Component {
     return (
       <DndProvider backend={HTML5Backend}>
         <Table
+          rowKey="index"
           columns={this.props.columns}
           dataSource={this.props.data}
           components={this.components}

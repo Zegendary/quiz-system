@@ -1,5 +1,5 @@
-import sequelize from '../db/quiz-xdml'
-import DataType from 'sequelize';
+const sequelize = require('../db/quiz-xdml');
+const DataType = require('sequelize');
 
 const Quiz = sequelize.define('quiz', {
   id: {
@@ -26,6 +26,8 @@ const Quiz = sequelize.define('quiz', {
   duration: {
     type: DataType.INTEGER,
   },
+}, {
+  timestamps: true
 });
 
 Quiz.sync()

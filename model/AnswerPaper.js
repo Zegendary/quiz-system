@@ -1,5 +1,5 @@
-import sequelize from '../db/quiz-xdml'
-import DataType from 'sequelize';
+const sequelize = require('../db/quiz-xdml');
+const DataType = require('sequelize');
 
 const AnswerPaper = sequelize.define('answerPaper', {
   id: {
@@ -16,6 +16,8 @@ const AnswerPaper = sequelize.define('answerPaper', {
     type: DataType.UUID,
     primaryKey: true,
   },
+},{
+  timestamps: true
 });
 
 AnswerPaper.sync()

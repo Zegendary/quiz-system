@@ -1,6 +1,6 @@
-import sequelize from '../sequelize';
-import Quiz from './Quiz';
-import AnswerPaper from './AnswerPaper';
+// const sequelize = require('../db/quiz-xdml');
+const Quiz = require('./Quiz');
+const AnswerPaper = require('./AnswerPaper');
 
 Quiz.hasMany(AnswerPaper, {
   foreignKey: 'quizId',
@@ -8,10 +8,9 @@ Quiz.hasMany(AnswerPaper, {
   onUpdate: 'cascade',
   onDelete: 'cascade',
 });
+//
+// function sync(...args) {
+//   return sequelize.sync(...args);
+// }
 
-function sync(...args) {
-  return sequelize.sync(...args);
-}
-
-export default { sync };
-export { Quiz, AnswerPaper };
+module.exports = { Quiz, AnswerPaper };
