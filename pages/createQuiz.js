@@ -2,7 +2,7 @@ import React from 'react'
 import Head from 'next/head'
 import SearchSelect from '../components/searchSelect'
 import axios from 'axios'
-import { Table, Button } from 'antd'
+import { Table, Button, Modal, Input, notification } from 'antd'
 import DragableTable from '../components/DragableTable'
 
 const columns = [
@@ -25,6 +25,7 @@ const CreateQuiz = (props) => {
   const [selectedRows, setSelectedRows] = React.useState([])
   const [newQuestions, setNewQuestions] = React.useState([])
   const [courseIds, setCourseIds] = React.useState([])
+  const [quizName, setQuizName] = React.useState('')
   const [pager, setPager] = React.useState({
     page: 1,
     totalCount: 1
@@ -109,9 +110,15 @@ const CreateQuiz = (props) => {
 
   const onSubmit = () => {
     axios.post('/api/quizzes', {
+      name: quizName,
       questions: newQuestions
     }).then((response)=>{
-      console.log(response)
+      setNewQuestions([])
+      setQuizName('')
+      notification.success({
+        message: '生成试卷成功',
+        description: <div>点击 <a href={`/quizzes/${response.quiz.id}`}>链接</a> 查看，或者复制 {`${window.location.origin}/quizzes/${response.quiz.id}`}</div>,
+      });
     })
   }
 
@@ -136,6 +143,7 @@ const CreateQuiz = (props) => {
           {/*<Button type="primary">添加</Button>*/}
         </div>
         <div className="tableWrapper">
+          <Input addonBefore="试卷名" value={quizName} onChange={(e) => {setQuizName(e.target.value)}}/>
           <DragableTable columns={columns1} data={newQuestions} setData={setNewQuestions}/>
         </div>
       </div>
