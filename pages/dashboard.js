@@ -11,4 +11,9 @@ const Dashboard = (props) => {
   </div>
 }
 
+Dashboard.getInitialProps = ({req}) => {
+  const current_user = req? req.current_user : window.current_user
+  return {user: current_user}
+}
+
 export default Dashboard

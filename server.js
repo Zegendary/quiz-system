@@ -7,7 +7,6 @@ const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
 const api = require('./routes/api')
-const views = require('./routes/views')
 const jwt = require('jsonwebtoken')
 const taskCenterDb = require('./db/task-center');
 
@@ -27,6 +26,7 @@ app.prepare().then(() => {
         return res.redirect(`https://xiedaimala.com/sign_in/?redirect_to=${req.originalUrl}`)
       }else{
         req.current_user = rows[0]
+        res.current_user = rows[0]
         next()
       }
     })
@@ -44,8 +44,8 @@ app.prepare().then(() => {
   })
 
 
-  server.get('/quiz/:id', auth, (req, res) => {
-    return app.render(req, res, '/quiz', { id: req.params.id })
+  server.get('/quizzes/:id', auth, (req, res) => {
+    return app.render(req, res, '/quizShow', { id: req.params.id })
   })
 
   server.get('/createQuiz', auth, (req, res) => {

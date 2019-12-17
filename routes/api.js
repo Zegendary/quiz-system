@@ -44,7 +44,19 @@ router.get('/questions', async (req, res, next) => {
 })
 
 router.get('/quizzes', async (req, res, next) => {
-  res.send({data: []})
+  Quiz.findAndCountAll({
+    offset: (req.params.page-1 || 0) * 10,
+    limit: 10,
+  }).then((result) => {
+    res.send({
+      status: 0,
+      quizzes: result.rows,
+      page: req.params.page || 1,
+      totalCount: result.count
+    })
+  }).catch(() => {
+    res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
+  })
 })
 
 router.post('/quizzes', async (req, res, next) => {
@@ -55,6 +67,19 @@ router.post('/quizzes', async (req, res, next) => {
     content: questions
   }).then((quiz) => {
     res.send({status: 0, quiz})
+  }).catch(() => {
+    res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
+  })
+})
+
+router.get('/quizzes/:id', async (req, res, next) => {
+  Quiz.findAll({
+    where: {
+      id: req.params.id
+    }
+  }).then((quizzes) => {
+    console.log(quizzes)
+    res.send({status: 0, quiz: quizzes[0]})
   }).catch(() => {
     res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
   })

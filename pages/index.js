@@ -3,6 +3,7 @@ import Head from 'next/head'
 import Nav from '../components/nav'
 import { List, Avatar, Button, Skeleton } from 'antd';
 import axios from 'axios'
+import Link from 'next/link'
 
 const Home = (props) => {
   const [state, setState] = React.useState({
@@ -14,14 +15,15 @@ const Home = (props) => {
   });
 
   const { user } = props
-  const {quizzes, initLoading, keyword, page, totalPage} = state
+  const {quizzes, initLoading, keyword, page, totalCount} = state
 
   React.useEffect(() => {
+    window.current_user = user
     getQuizzes(1)
   }, [])
 
   const onLoadMore = () => {
-    getQuizzes(state.page + 1)
+    getQuizzes(page + 1)
   }
 
   const getQuizzes = (page) => {
@@ -34,16 +36,16 @@ const Home = (props) => {
     }).then((response) =>{
       setState({
         ...state,
-        quizzes: [quizzes, ...response.data.quizzes],
+        quizzes: [...quizzes, ...response.data.quizzes],
         initLoading: false,
         page: response.data.page,
-        totalPage: response.data.totalPage
+        totalCount: response.data.totalCount
       })
     })
   }
 
   const loadMore =
-    !initLoading && (page !== totalPage) ? (
+    !initLoading && (page*10 < totalCount) ? (
       <div
         style={{
           textAlign: 'center',
@@ -73,17 +75,14 @@ const Home = (props) => {
           dataSource={quizzes}
           renderItem={item => (
             <List.Item
-              actions={[<a key="list-loadmore-edit">edit</a>, <a key="list-loadmore-more">more</a>]}
+              key={item.id}
+              actions={[<a key="list-loadmore-edit">查看</a>]}
             >
-              <Skeleton avatar title={false} loading={item.loading} active>
+              <Skeleton avatar title={false} loading={initLoading} active>
                 <List.Item.Meta
-                  avatar={
-                    <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                  }
-                  title={<a href="https://ant.design">{item.name.last}</a>}
-                  description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+                  title={<Link href={`/quizzes/${item.id}`}><a>{item.name}</a></Link>}
+                  description={item.description}
                 />
-                <div>content</div>
               </Skeleton>
             </List.Item>
           )}
@@ -92,13 +91,18 @@ const Home = (props) => {
 
       <style jsx>{`
         .main {
-          max-width: 1000px;
+          max-width: 800px;
           margin: auto;
           color: #333;
         }
       `}</style>
     </div>
   )
+}
+
+Home.getInitialProps = ({req}) => {
+  const current_user = req? req.current_user : window.current_user
+  return {user: current_user}
 }
 
 export default Home

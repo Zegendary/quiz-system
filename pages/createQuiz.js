@@ -31,6 +31,10 @@ const CreateQuiz = (props) => {
     totalCount: 1
   })
 
+  React.useEffect(() => {
+    window.current_user = props.user
+  }, [])
+
   const onSelect = (value) => {
     let ids = value.map(v => v.key)
     setCourseIds(ids)
@@ -112,12 +116,12 @@ const CreateQuiz = (props) => {
     axios.post('/api/quizzes', {
       name: quizName,
       questions: newQuestions
-    }).then((response)=>{
+    }).then(({data})=>{
       setNewQuestions([])
       setQuizName('')
       notification.success({
         message: '生成试卷成功',
-        description: <div>点击 <a href={`/quizzes/${response.quiz.id}`}>链接</a> 查看，或者复制 {`${window.location.origin}/quizzes/${response.quiz.id}`}</div>,
+        description: <div>点击 <a href={`/quizzes/${data.quiz.id}`}>链接</a> 查看，或者复制 {`${window.location.origin}/quizzes/${data.quiz.id}`}</div>,
       });
     })
   }
@@ -172,6 +176,11 @@ const CreateQuiz = (props) => {
         }
       `}</style>
   </div>
+}
+
+CreateQuiz.getInitialProps = async ({req}) => {
+  const current_user = req? req.current_user : window.current_user
+  return {user: current_user}
 }
 
 export default CreateQuiz

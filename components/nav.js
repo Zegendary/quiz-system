@@ -4,11 +4,6 @@ import { Button } from 'antd'
 
 const Nav = ({user}) => (
   <nav>
-    <div className="logo">
-      <Link href="/">
-        <a>欢迎来到答卷系统</a>
-      </Link>
-    </div>
     {
       user ? <ul>
         <li>
@@ -35,27 +30,20 @@ const Nav = ({user}) => (
           Helvetica, sans-serif;
       }
       nav {
-        text-align: center;
+        max-width: 800px;
+        margin: auto;
         display: flex;
-        justify-content: space-between;
         align-items: center;
       }
       ul {
+        padding: 10px 0;
         flex: 1;
         display: flex;
         justify-content: flex-end;
       }
-      nav > ul {
-        padding: 4px 16px;
-      }
       li {
         display: flex;
         padding: 6px 8px;
-      }
-      a {
-        color: #067df7;
-        text-decoration: none;
-        font-size: 13px;
       }
     `}</style>
   </nav>
