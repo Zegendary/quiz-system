@@ -36,7 +36,7 @@ app.prepare().then(() => {
 
   // view
   server.get('/', auth, (req, res) => {
-    return app.render(req, res, '/', req.query)
+    return app.render(req, res, '/index', req.query)
   })
 
   server.get('/dashboard', auth, (req, res) => {

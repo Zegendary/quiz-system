@@ -79,7 +79,6 @@ router.get('/quizzes/:id', async (req, res, next) => {
       id: req.params.id
     }
   }).then((quizzes) => {
-    console.log(quizzes)
     res.send({status: 0, quiz: quizzes[0]})
   }).catch(() => {
     res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
