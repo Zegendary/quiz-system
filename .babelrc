@@ -1,11 +1,11 @@
 {
   "plugins": [
-    ["inline-import", { "extensions": [".css"] }],
     ["import", {
       "libraryName": "antd",
+      "libraryDirectory": "lib",
       "style": true
     }]
   ],
   "presets": ["next/babel"],
-  "ignore": []
+  "ignore": ["node_modules"]
 }

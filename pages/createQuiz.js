@@ -5,6 +5,8 @@ import axios from 'axios'
 import { Table, Button, Modal, Input, notification } from 'antd'
 import DragableTable from '../components/DragableTable'
 
+
+const {TextArea} = Input
 const columns = [
   {
     title: '题目',
@@ -25,7 +27,10 @@ const CreateQuiz = (props) => {
   const [selectedRows, setSelectedRows] = React.useState([])
   const [newQuestions, setNewQuestions] = React.useState([])
   const [courseIds, setCourseIds] = React.useState([])
-  const [quizName, setQuizName] = React.useState('')
+  const [quizInfo, setQuizInfo] = React.useState({
+    name: '',
+    description: ''
+  })
   const [pager, setPager] = React.useState({
     page: 1,
     totalCount: 1
@@ -114,11 +119,14 @@ const CreateQuiz = (props) => {
 
   const onSubmit = () => {
     axios.post('/api/quizzes', {
-      name: quizName,
+      ...quizInfo,
       questions: newQuestions
     }).then(({data})=>{
       setNewQuestions([])
-      setQuizName('')
+      setQuizInfo({
+        name:'',
+        description: ''
+      })
       notification.success({
         message: '生成试卷成功',
         description: <div>点击 <a href={`/quizzes/${data.quiz.id}`}>链接</a> 查看，或者复制 {`${window.location.origin}/quizzes/${data.quiz.id}`}</div>,
@@ -147,7 +155,13 @@ const CreateQuiz = (props) => {
           {/*<Button type="primary">添加</Button>*/}
         </div>
         <div className="tableWrapper">
-          <Input addonBefore="试卷名" value={quizName} onChange={(e) => {setQuizName(e.target.value)}}/>
+          <Input addonBefore="试卷名" value={quizInfo.name} onChange={(e) => {setQuizInfo({...quizInfo, name: e.target.value})}}/>
+          <TextArea
+            value={quizInfo.description}
+            onChange={(e) => {setQuizInfo({...quizInfo, description: e.target.value})}}
+            placeholder="添加试卷描述"
+            autoSize={{ minRows: 3, maxRows: 5 }}
+          />
           <DragableTable columns={columns1} data={newQuestions} setData={setNewQuestions}/>
         </div>
       </div>

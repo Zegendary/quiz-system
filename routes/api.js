@@ -60,9 +60,10 @@ router.get('/quizzes', async (req, res, next) => {
 })
 
 router.post('/quizzes', async (req, res, next) => {
-  const {questions, name} = req.body
+  const {questions, name, description} = req.body
   Quiz.create({
     name,
+    description,
     creatorId: req.current_user.id,
     content: questions
   }).then((quiz) => {

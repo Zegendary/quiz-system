@@ -12,7 +12,10 @@ const Quiz = sequelize.define('quiz', {
     type: DataType.STRING(255),
     allowNull: false,
   },
-
+  description: {
+    type: DataType.TEXT,
+    allowNull: true,
+  },
   content: {
     type: DataType.JSON,
     defaultValue: {},
