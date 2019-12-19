@@ -1,16 +1,18 @@
 // const sequelize = require('../db/quiz-xdml');
 const Quiz = require('./Quiz');
 const AnswerPaper = require('./AnswerPaper');
+const QuizSnapshot = require('./QuizSnapshot');
 
-Quiz.hasMany(AnswerPaper, {
-  foreignKey: 'quizId',
-  as: 'answerPapers',
-  onUpdate: 'cascade',
-  onDelete: 'cascade',
-});
-//
-// function sync(...args) {
-//   return sequelize.sync(...args);
-// }
+Quiz.hasMany(AnswerPaper);
+AnswerPaper.belongsTo(Quiz);
+Quiz.belongsTo(QuizSnapshot);
+AnswerPaper.belongsTo(QuizSnapshot);
+QuizSnapshot.hasOne(Quiz)
+QuizSnapshot.hasMany(AnswerPaper)
 
-module.exports = { Quiz, AnswerPaper };
+Quiz.sync()
+AnswerPaper.sync()
+QuizSnapshot.sync()
+
+
+module.exports = { Quiz, AnswerPaper, QuizSnapshot };

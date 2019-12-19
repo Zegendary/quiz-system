@@ -23,7 +23,10 @@ const QuizShow = (props) => {
 
   const onChange = (checkedValues) => {
     setAnswers(answers.map((a,i) => {
-      return i === question.index?checkedValues: a
+      return i === question.index?{
+        answer: null,
+        choices: checkedValues
+      }: a
     }))
   }
 
@@ -51,12 +54,13 @@ const QuizShow = (props) => {
       <h4>{quiz.name}</h4>
       {status ?  <div className="quizContent">
         <div className="questionIndex">
-          {quiz.content.map((question,index) =>
+          {quiz.content.map((q,index) =>
             <Button
               key={index}
               size="small"
-              onClick={(index) =>changeQuestion(index)}
-              className={`${question.index === index?'active':''} ${(answers[index].answer || answers[index].choices.length > 0)?'finished':''}`}>
+              onClick={() => changeQuestion(index)}
+              type={(answers[index].answer || answers[index].choices.length > 0) ? 'primary': ''}
+              disabled={question.index === index}>
               {index+1}
             </Button>)}
         </div>
@@ -105,7 +109,6 @@ const QuizShow = (props) => {
         margin-top: 20px;
         display: flex;
         justify-content: space-between;
-        align-self: flex-end;
       }
       .quizStart .buttonWrapper{
         margin-top: 100px;
@@ -117,6 +120,10 @@ const QuizShow = (props) => {
       }
       .questionIndex > :global(button){
         margin-right: 10px;
+        margin-top: 10px;
+      }
+      .choiceQuestion,.clozeQuestion{
+        margin: 20px 0;
       }
     `}</style>
   </div>

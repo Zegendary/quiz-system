@@ -1,37 +1,43 @@
 const sequelize = require('../db/quiz-xdml');
-const DataType = require('sequelize');
+const Sequelize = require('sequelize');
 
-const Quiz = sequelize.define('quiz', {
+const Model = Sequelize.Model;
+
+class Quiz extends Model{}
+
+Quiz.init({
   id: {
-    type: DataType.UUID,
-    defaultValue: DataType.UUIDV1,
+    type: Sequelize.UUID,
+    defaultValue: Sequelize.UUIDV1,
     primaryKey: true,
   },
 
   name: {
-    type: DataType.STRING(255),
+    type: Sequelize.STRING(255),
     allowNull: false,
   },
   description: {
-    type: DataType.TEXT,
+    type: Sequelize.TEXT,
     allowNull: true,
   },
   content: {
-    type: DataType.JSON,
+    type: Sequelize.JSON,
     defaultValue: {},
   },
 
   creatorId: {
-    type: DataType.UUID,
+    type: Sequelize.UUID,
     primaryKey: true,
   },
 
   duration: {
-    type: DataType.INTEGER,
+    type: Sequelize.INTEGER,
   },
 }, {
-  timestamps: true
+  sequelize,
+  modelName: 'quiz',
+  timestamps: true,
+  underscored: true
 });
 
-Quiz.sync()
 module.exports = Quiz;

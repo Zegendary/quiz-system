@@ -1,4 +1,4 @@
-const {Quiz, AnswerPaper} = require('../model');
+const {Quiz, AnswerPaper, QuizSnapshot} = require('../model');
 const express = require('express');
 const router = express.Router();
 const taskCenterDb = require('../db/task-center');
@@ -71,6 +71,22 @@ router.post('/quizzes', async (req, res, next) => {
   }).catch(() => {
     res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
   })
+})
+
+router.put('/quizzes/:id', async (req, res, next) => {
+  Quiz.findAll({
+    where: {
+      id: req.params.id
+    }
+  }).then((quizzes) => {
+    res.send({status: 0, quiz: quizzes[0]})
+  }).catch(() => {
+    res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
+  })
+})
+
+router.post('/answerPapers', async (req, res, next) => {
+
 })
 
 router.get('/quizzes/:id', async (req, res, next) => {

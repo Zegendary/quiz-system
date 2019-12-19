@@ -3,28 +3,23 @@ const Sequelize = require('sequelize');
 
 const Model = Sequelize.Model;
 
-class AnswerPaper extends Model{}
+class QuizSnapshot extends Model{}
 
-AnswerPaper.init({
+QuizSnapshot.init({
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV1,
     primaryKey: true,
   },
-
   content: {
     type: Sequelize.JSON,
-  },
-
-  creatorId: {
-    type: Sequelize.UUID,
-    primaryKey: true,
-  },
-},{
+    defaultValue: {},
+  }
+}, {
   sequelize,
-  modelName: 'answerPaper',
+  modelName: 'quizSnapshot',
   timestamps: true,
   underscored: true
 });
 
-module.exports = AnswerPaper;
+module.exports = QuizSnapshot;
