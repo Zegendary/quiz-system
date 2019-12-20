@@ -1,7 +1,7 @@
 import React from 'react'
 import Head from 'next/head'
 import axios from 'axios'
-import {Button, Checkbox, Row, Col} from 'antd'
+import {Button, Checkbox, Row, Col, Modal} from 'antd'
 
 const QuizShow = (props) => {
   const [quiz, setQuiz] = React.useState({
@@ -51,7 +51,18 @@ const QuizShow = (props) => {
       quizId: quiz.id,
       quizSnapshotId: quiz.quizSnapshotId
     }).then(({data}) => {
-      console.log(data)
+      Modal.success({
+        title: '提交成功',
+        content: (
+          <div>
+            <p>您的答题结果是 {data.answerPaper.marks.filter(m => m).length}/{data.answerPaper.marks.length}</p>
+          </div>
+        ),
+        okText: "查看答卷",
+        onOk() {
+          console.log('跳转')
+        },
+      });
     }).catch((e) => {
 
     })

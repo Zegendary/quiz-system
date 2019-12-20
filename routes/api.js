@@ -133,7 +133,7 @@ router.post('/answerPapers', async (req, res, next) => {
   quizSnapshots[0].content.forEach((c,index) => {
     if (c.type === 'ChoiceQuestion'){
       const correctAnswers = c.options.filter(o => o["correct"]).map(o => o.text)
-      if(_.isEqual(answers[index].choices.sort(),correctAnswers.sort)){
+      if(_.isEqual(answers[index].choices.sort(),correctAnswers.sort())){
         marks.push(true)
       }else{
         marks.push(false)
@@ -174,7 +174,11 @@ router.get('/answerPapers/:id', async (req, res, next) => {
     const quizSnapshots = await QuizSnapshot.findAll({
       where: {id: answerPaper.quizSnapshotId}
     })
-    res.send({status: 0, answerPaper, quizSnapshot: quizSnapshots[0]})
+    const quiz = await Quiz.findAll({
+      where: {id: answerPaper.quizId},
+
+    })
+    res.send({status: 0, answerPaper, quizSnapshot: quizSnapshots[0], quiz: quiz[0]})
   }catch (e) {
     console.log(e)
     res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
