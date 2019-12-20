@@ -18,8 +18,7 @@ QuizSnapshot.init({
 }, {
   sequelize,
   modelName: 'quizSnapshot',
-  timestamps: true,
-  underscored: true
+  timestamps: true
 });
 
 module.exports = QuizSnapshot;

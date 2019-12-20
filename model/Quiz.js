@@ -36,8 +36,7 @@ Quiz.init({
 }, {
   sequelize,
   modelName: 'quiz',
-  timestamps: true,
-  underscored: true
+  timestamps: true
 });
 
 module.exports = Quiz;

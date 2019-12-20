@@ -45,6 +45,18 @@ const QuizShow = (props) => {
     })
   }
 
+  const submitAnswerPaper = () => {
+    axios.post('/api/answerPapers',{
+      answers,
+      quizId: quiz.id,
+      quizSnapshotId: quiz.quizSnapshotId
+    }).then(({data}) => {
+      console.log(data)
+    }).catch((e) => {
+
+    })
+  }
+
   return <div>
     <Head>
       <title>答卷系统-工作台</title>
@@ -80,7 +92,7 @@ const QuizShow = (props) => {
         }
         <div className="actionButton">
           <Button disabled={question.index === 0} onClick={() =>changeQuestion(question.index - 1)}>上一题</Button>
-          <Button type="primary">提交</Button>
+          <Button type="primary" onClick={submitAnswerPaper}>提交</Button>
           <Button disabled={question.index === (quiz.content.length - 1)} onClick={() =>changeQuestion(question.index + 1)}>下一题</Button>
         </div>
       </div>:<div className="quizStart">

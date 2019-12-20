@@ -2,6 +2,7 @@ const {Quiz, AnswerPaper, QuizSnapshot} = require('../model');
 const express = require('express');
 const router = express.Router();
 const taskCenterDb = require('../db/task-center');
+const _ = require('lodash')
 
 router.get('/courses',async (req, res, next) => {
   const {rows} = await taskCenterDb.query("SELECT id, name FROM courses WHERE name LIKE $1 limit 10", [`%${req.query.keyword}%`])
@@ -39,7 +40,6 @@ router.get('/questions', async (req, res, next) => {
       answerable
     }
   })
-
   res.send({questions: data, pager: {page: Number(page), totalCount: Number(questionCount.rows[0].count)}})
 })
 
@@ -47,6 +47,7 @@ router.get('/quizzes', async (req, res, next) => {
   Quiz.findAndCountAll({
     offset: (req.params.page-1 || 0) * 10,
     limit: 10,
+    attributes: ['name', 'id', 'description', 'duration']
   }).then((result) => {
     res.send({
       status: 0,
@@ -61,44 +62,125 @@ router.get('/quizzes', async (req, res, next) => {
 
 router.post('/quizzes', async (req, res, next) => {
   const {questions, name, description} = req.body
-  Quiz.create({
-    name,
-    description,
-    creatorId: req.current_user.id,
-    content: questions
-  }).then((quiz) => {
+  try {
+    const quizSnapshot = await QuizSnapshot.create({content: questions})
+    console.log("user",req.current_user.id)
+    const quiz = await Quiz.create({
+      name,
+      description,
+      creatorId: req.current_user.id,
+      content: questions,
+      quizSnapshotId: quizSnapshot.id
+    })
     res.send({status: 0, quiz})
-  }).catch(() => {
+  } catch (e) {
+    console.log(e)
     res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
-  })
+  }
 })
 
 router.put('/quizzes/:id', async (req, res, next) => {
-  Quiz.findAll({
-    where: {
-      id: req.params.id
-    }
-  }).then((quizzes) => {
+  const {id, questions, name, description} = req.body
+  try {
+    const quizSnapshot = await QuizSnapshot.create({content: questions})
+    const quizzes = await Quiz.update({
+      name,
+      description,
+      creatorId: req.current_user.id,
+      content: questions,
+      quizSnapshotId: quizSnapshot.id
+    },{
+      where: {
+        id: id
+      }
+    })
     res.send({status: 0, quiz: quizzes[0]})
-  }).catch(() => {
+  } catch (e) {
     res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
-  })
-})
-
-router.post('/answerPapers', async (req, res, next) => {
-
+  }
 })
 
 router.get('/quizzes/:id', async (req, res, next) => {
-  Quiz.findAll({
-    where: {
-      id: req.params.id
+  try{
+    const quizzes = await Quiz.findAll({
+      where: {id: req.params.id}
+    })
+    const content = quizzes[0].content.map(c => {
+      return {
+        ...c,
+        options: c.options.map(o => {return {text: o.text}}),
+        answers: null
+      }
+    })
+    const quiz = {
+      ...quizzes[0].dataValues,
+      content,
     }
-  }).then((quizzes) => {
-    res.send({status: 0, quiz: quizzes[0]})
-  }).catch(() => {
+    res.send({status: 0, quiz: quiz})
+  }catch (e) {
+    console.log(e)
     res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
-  })
+  }
 })
+
+router.post('/answerPapers', async (req, res, next) => {
+  const {answers, quizId, quizSnapshotId} = req.body
+  const quizSnapshots = await QuizSnapshot.findAll({
+    where: {id: quizSnapshotId}
+  })
+  // test answers
+  const marks = []
+  quizSnapshots[0].content.forEach((c,index) => {
+    if (c.type === 'ChoiceQuestion'){
+      const correctAnswers = c.options.filter(o => o["correct"]).map(o => o.text)
+      if(_.isEqual(answers[index].choices.sort(),correctAnswers.sort)){
+        marks.push(true)
+      }else{
+        marks.push(false)
+      }
+    }else{
+      if(c.answers.include(answers[index].answer)){
+        marks.push(true)
+      }else{
+        marks.push(false)
+      }
+    }
+  })
+  try{
+    const answerPaper = await AnswerPaper.create({
+      creatorId: req.current_user.id,
+      answers,
+      marks,
+      quizSnapshotId,
+      quizId
+    })
+    res.send({status: 0, answerPaper, quizSnapshot: quizSnapshots[0]})
+  }catch (e) {
+    console.log(e)
+    res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
+  }
+})
+
+router.get('/answerPapers', async (req, res, next) => {
+
+})
+
+router.get('/answerPapers/:id', async (req, res, next) => {
+  try{
+    const answerPapers = await AnswerPaper.findAll({
+      where: {id: req.params.id}
+    })
+    const answerPaper = answerPapers[0]
+    const quizSnapshots = await QuizSnapshot.findAll({
+      where: {id: answerPaper.quizSnapshotId}
+    })
+    res.send({status: 0, answerPaper, quizSnapshot: quizSnapshots[0]})
+  }catch (e) {
+    console.log(e)
+    res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
+  }
+})
+
+
 
 module.exports = router;

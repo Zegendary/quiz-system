@@ -12,7 +12,11 @@ AnswerPaper.init({
     primaryKey: true,
   },
 
-  content: {
+  answers: {
+    type: Sequelize.JSON,
+  },
+
+  marks: {
     type: Sequelize.JSON,
   },
 
@@ -23,8 +27,7 @@ AnswerPaper.init({
 },{
   sequelize,
   modelName: 'answerPaper',
-  timestamps: true,
-  underscored: true
+  timestamps: true
 });
 
 module.exports = AnswerPaper;
