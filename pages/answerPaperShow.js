@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 const AnswerPaperShow = (props) => {
   const [quizSnapshot, setQuizSnapshot] = React.useState({
-    content: []
+    questions: []
   })
   const [answerPaper, setAnswerPaper] = React.useState({
     marks: [],
@@ -44,7 +44,7 @@ const AnswerPaperShow = (props) => {
       </div>
       <div className="answerPaperContent">
         {
-          quizSnapshot.content.map((qs, index) =>
+          quizSnapshot.questions.map((qs, index) =>
             <div
               key={index}
               id={`question${index + 1}`}

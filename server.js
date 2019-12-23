@@ -48,12 +48,16 @@ app.prepare().then(() => {
     return app.render(req, res, '/quizShow', { id: req.params.id })
   })
 
+  server.get('/quizzes/:id/edit', auth, (req, res) => {
+    return app.render(req, res, '/quizEdit', { id: req.params.id })
+  })
+
   server.get('/answerPapers/:id', auth, (req, res) => {
     return app.render(req, res, '/answerPaperShow', { id: req.params.id })
   })
 
   server.get('/createQuiz', auth, (req, res) => {
-    return app.render(req, res, '/createQuiz')
+    return app.render(req, res, '/quizCreate')
   })
 
   server.all('*', (req, res) => {

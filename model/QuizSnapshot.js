@@ -11,7 +11,7 @@ QuizSnapshot.init({
     defaultValue: Sequelize.UUIDV1,
     primaryKey: true,
   },
-  content: {
+  questions: {
     type: Sequelize.JSON,
     defaultValue: {},
   }

@@ -5,7 +5,7 @@ import {Button, Checkbox, Row, Col, Modal} from 'antd'
 
 const QuizShow = (props) => {
   const [quiz, setQuiz] = React.useState({
-    content: []
+    questions: []
   })
   const [question, setQuestion] = React.useState({
     index: 0
@@ -15,7 +15,7 @@ const QuizShow = (props) => {
 
   React.useEffect(() => {
     axios.get(`/api/quizzes/${props.quizId}`).then((response) => {
-      let length = response.data.quiz.content.length
+      let length = response.data.quiz.questions.length
       setAnswers(Array.from({length}).map(v=> { return {answer: null, choices: []}}))
       setQuiz(response.data.quiz)
     })
@@ -34,14 +34,14 @@ const QuizShow = (props) => {
     setStatus(true)
     setQuestion({
       index: 0,
-      ...quiz.content[0]
+      ...quiz.questions[0]
     })
   }
 
   const changeQuestion = (index) => {
     setQuestion({
       index: index,
-      ...quiz.content[index]
+      ...quiz.questions[index]
     })
   }
 
@@ -77,7 +77,7 @@ const QuizShow = (props) => {
       <h4>{quiz.name}</h4>
       {status ?  <div className="quizContent">
         <div className="questionIndex">
-          {quiz.content.map((q,index) =>
+          {quiz.questions.map((q,index) =>
             <Button
               key={index}
               size="small"
@@ -104,7 +104,7 @@ const QuizShow = (props) => {
         <div className="actionButton">
           <Button disabled={question.index === 0} onClick={() =>changeQuestion(question.index - 1)}>上一题</Button>
           <Button type="primary" onClick={submitAnswerPaper}>提交</Button>
-          <Button disabled={question.index === (quiz.content.length - 1)} onClick={() =>changeQuestion(question.index + 1)}>下一题</Button>
+          <Button disabled={question.index === (quiz.questions.length - 1)} onClick={() =>changeQuestion(question.index + 1)}>下一题</Button>
         </div>
       </div>:<div className="quizStart">
         <p>{quiz.description}</p>

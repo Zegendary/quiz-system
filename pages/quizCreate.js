@@ -22,7 +22,7 @@ const columns = [
   }
 ];
 
-const CreateQuiz = (props) => {
+const QuizCreate = (props) => {
   const [questions, setQuestions] = React.useState([])
   const [selectedRows, setSelectedRows] = React.useState([])
   const [newQuestions, setNewQuestions] = React.useState([])
@@ -192,9 +192,9 @@ const CreateQuiz = (props) => {
   </div>
 }
 
-CreateQuiz.getInitialProps = async ({req}) => {
+QuizCreate.getInitialProps = async ({req}) => {
   const current_user = req? req.current_user : window.current_user
   return {user: current_user}
 }
 
-export default CreateQuiz
+export default QuizCreate

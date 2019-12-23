@@ -5,11 +5,20 @@ const taskCenterDb = require('../db/task-center');
 const _ = require('lodash')
 
 router.get('/courses',async (req, res, next) => {
-  const {rows} = await taskCenterDb.query("SELECT id, name FROM courses WHERE name LIKE $1 limit 10", [`%${req.query.keyword}%`])
-  res.send({data: rows})
+  if(req.current_user.role_mask !== 0){
+    const {rows} = await taskCenterDb.query("SELECT id, name FROM courses WHERE name LIKE $1 limit 10", [`%${req.query.keyword}%`])
+    res.send({data: rows})
+  }else{
+    res.send({status: 1,errorMsg: '你没有权限获取列表'})
+  }
 })
 
 router.get('/questions', async (req, res, next) => {
+
+  if(req.current_user.role_mask === 0){
+    res.send({status: 1,errorMsg: '你没有权限获取列表'})
+  }
+
   const taskResults = await taskCenterDb.query("SELECT id FROM tasks WHERE course_id = ANY($1)", [req.query.courseIds])
   const taskIds = taskResults.rows.map(task => task.id)
   const quizResults = await taskCenterDb.query("SELECT answerable_id FROM task_quizzes WHERE task_id = ANY($1) and answerable_type = 'Quiz'", [taskIds])
@@ -63,13 +72,12 @@ router.get('/quizzes', async (req, res, next) => {
 router.post('/quizzes', async (req, res, next) => {
   const {questions, name, description} = req.body
   try {
-    const quizSnapshot = await QuizSnapshot.create({content: questions})
-    console.log("user",req.current_user.id)
+    const quizSnapshot = await QuizSnapshot.create({questions: questions})
     const quiz = await Quiz.create({
       name,
       description,
       creatorId: req.current_user.id,
-      content: questions,
+      questions: questions,
       quizSnapshotId: quizSnapshot.id
     })
     res.send({status: 0, quiz})
@@ -82,12 +90,12 @@ router.post('/quizzes', async (req, res, next) => {
 router.put('/quizzes/:id', async (req, res, next) => {
   const {id, questions, name, description} = req.body
   try {
-    const quizSnapshot = await QuizSnapshot.create({content: questions})
+    const quizSnapshot = await QuizSnapshot.create({questions: questions})
     const quizzes = await Quiz.update({
       name,
       description,
       creatorId: req.current_user.id,
-      content: questions,
+      questions: questions,
       quizSnapshotId: quizSnapshot.id
     },{
       where: {
@@ -105,7 +113,7 @@ router.get('/quizzes/:id', async (req, res, next) => {
     const quizzes = await Quiz.findAll({
       where: {id: req.params.id}
     })
-    const content = quizzes[0].content.map(c => {
+    const questions = quizzes[0].questions.map(c => {
       return {
         ...c,
         options: c.options.map(o => {return {text: o.text}}),
@@ -114,7 +122,7 @@ router.get('/quizzes/:id', async (req, res, next) => {
     })
     const quiz = {
       ...quizzes[0].dataValues,
-      content,
+      questions,
     }
     res.send({status: 0, quiz: quiz})
   }catch (e) {
@@ -130,7 +138,7 @@ router.post('/answerPapers', async (req, res, next) => {
   })
   // test answers
   const marks = []
-  quizSnapshots[0].content.forEach((c,index) => {
+  quizSnapshots[0].questions.forEach((c,index) => {
     if (c.type === 'ChoiceQuestion'){
       const correctAnswers = c.options.filter(o => o["correct"]).map(o => o.text)
       if(_.isEqual(answers[index].choices.sort(),correctAnswers.sort())){
@@ -162,7 +170,23 @@ router.post('/answerPapers', async (req, res, next) => {
 })
 
 router.get('/answerPapers', async (req, res, next) => {
-
+  AnswerPaper.findAndCountAll({
+    offset: (req.params.page-1 || 0) * 10,
+    limit: 10,
+    include: [{
+      model: Quiz,
+      attributes: ['name']
+    }]
+  }).then((result) => {
+    res.send({
+      status: 0,
+      answerPapers: result.rows,
+      page: req.params.page || 1,
+      totalCount: result.count
+    })
+  }).catch(() => {
+    res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
+  })
 })
 
 router.get('/answerPapers/:id', async (req, res, next) => {
@@ -184,7 +208,6 @@ router.get('/answerPapers/:id', async (req, res, next) => {
     res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
   }
 })
-
 
 
 module.exports = router;

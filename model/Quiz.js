@@ -20,7 +20,7 @@ Quiz.init({
     type: Sequelize.TEXT,
     allowNull: true,
   },
-  content: {
+  questions: {
     type: Sequelize.JSON,
     defaultValue: {},
   },
