@@ -33,7 +33,10 @@ const Dashboard = (props) => {
     },
     {
       title: '回答数量',
-      dataIndex: 'answerPaperCount',
+      dataIndex: 'answerPapers',
+      render: (text, record, index) => {
+        return <a href={`/answerPapers?quizId=${record.id}`}>{text.length}</a>
+      }
     }
   ];
 
@@ -59,7 +62,7 @@ const Dashboard = (props) => {
     axios.get('/api/quizzes', {
       params: {
         page,
-        userId: props.user.id
+        creatorId: props.user.id
       }
     }).then(({data}) =>{
       setQuizzes(data.quizzes)
@@ -74,7 +77,7 @@ const Dashboard = (props) => {
     axios.get('/api/answerPapers', {
       params: {
         page,
-        userId: props.user.id
+        creatorId: props.user.id
       }
     }).then(({data}) =>{
       setAnswerPapers(data.answerPapers)

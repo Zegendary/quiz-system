@@ -18,18 +18,29 @@ app.prepare().then(() => {
   server.use(cookieParser());
 
   const auth = async (req, res, next) => {
-    let {user_id} = jwt.decode(req.cookies.x_jwt)
-    const {rows} = await taskCenterDb.query("SELECT * FROM users WHERE id = $1", [user_id])
-    const key = rows[0].last_sign_in_ip? (rows[0].encrypted_password + rows[0].last_sign_in_ip):rows[0].encrypted_password
-    jwt.verify(req.cookies.x_jwt, key,(err, decoded)=>{
-      if(err && !dev){
-        return res.redirect(`https://xiedaimala.com/sign_in/?redirect_to=${req.originalUrl}`)
-      }else{
-        req.current_user = rows[0]
-        res.current_user = rows[0]
-        next()
+    try{
+      let {user_id} = jwt.decode(req.cookies.x_jwt)
+      const {rows} = await taskCenterDb.query("SELECT * FROM users WHERE id = $1", [user_id])
+      const key = rows[0].last_sign_in_ip? (rows[0].encrypted_password + rows[0].last_sign_in_ip):rows[0].encrypted_password
+      jwt.verify(req.cookies.x_jwt, key,(err, decoded)=>{
+        if(err && !dev){
+          return res.redirect(`https://xiedaimala.com/sign_in/?redirect_to=${req.originalUrl}`)
+        }else if(req.query.creatorId !== undefined && req.query.creatorId !== user_id){
+          res.send({status: 1,errorMsg: '你没有权限获取列表'})
+        }else{
+          req.current_user = rows[0]
+          res.current_user = rows[0]
+          next()
+        }
+      })
+    }catch (e) {
+      console.log(e)
+      if(!dev){
+        res.redirect(`https://xiedaimala.com/sign_in/?redirect_to=${req.originalUrl}`)
       }
-    })
+      next()
+    }
+
   }
   // api
   server.use('/api', auth, api)

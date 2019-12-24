@@ -2,6 +2,7 @@ const {Quiz, AnswerPaper, QuizSnapshot} = require('../model');
 const express = require('express');
 const router = express.Router();
 const taskCenterDb = require('../db/task-center');
+const Sequelize = require('sequelize')
 const _ = require('lodash')
 
 router.get('/courses',async (req, res, next) => {
@@ -53,18 +54,26 @@ router.get('/questions', async (req, res, next) => {
 })
 
 router.get('/quizzes', async (req, res, next) => {
+  const queryParams = {...req.query}
+  delete queryParams.page
   Quiz.findAndCountAll({
-    offset: (req.params.page-1 || 0) * 10,
+    offset: (req.query.page-1 || 0) * 10,
     limit: 10,
-    attributes: ['name', 'id', 'description', 'duration']
+    order: [['createdAt', 'DESC']],
+    include: [{model: AnswerPaper}],
+    attributes: {
+      exclude: ['questions'],
+    },
+    where: queryParams
   }).then((result) => {
     res.send({
       status: 0,
       quizzes: result.rows,
-      page: req.params.page || 1,
+      page: req.query.page || 1,
       totalCount: result.count
     })
-  }).catch(() => {
+  }).catch((e) => {
+    console.log(e)
     res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
   })
 })
@@ -170,13 +179,16 @@ router.post('/answerPapers', async (req, res, next) => {
 })
 
 router.get('/answerPapers', async (req, res, next) => {
+  const queryParams = {...req.query}
+  delete queryParams.page
   AnswerPaper.findAndCountAll({
     offset: (req.params.page-1 || 0) * 10,
     limit: 10,
     include: [{
       model: Quiz,
       attributes: ['name']
-    }]
+    }],
+    where: queryParams
   }).then((result) => {
     res.send({
       status: 0,
@@ -184,7 +196,8 @@ router.get('/answerPapers', async (req, res, next) => {
       page: req.params.page || 1,
       totalCount: result.count
     })
-  }).catch(() => {
+  }).catch((e) => {
+    console.log(e)
     res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
   })
 })

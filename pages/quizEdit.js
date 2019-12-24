@@ -41,6 +41,13 @@ const QuizCreate = (props) => {
     <div className="main">
       <QuizForm user={props.user} quiz={quiz} setQuiz={setQuiz} type="update" onHandle={onUpdate}/>
     </div>
+    <style jsx>{`
+        .main{
+          max-width: 1000px;
+          margin: auto;
+          padding: 20px 0;
+        }
+      `}</style>
   </div>
 }
 

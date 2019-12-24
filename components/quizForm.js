@@ -1,5 +1,4 @@
 import React from 'react'
-import Head from 'next/head'
 import SearchSelect from './searchSelect'
 import axios from 'axios'
 import { Table, Button, Input } from 'antd'
@@ -32,10 +31,6 @@ const QuizForm = (props) => {
     page: 1,
     totalCount: 1
   })
-
-  React.useEffect(() => {
-    window.current_user = props.user
-  }, [])
 
   const onSelect = (value) => {
     let ids = value.map(v => v.key)
@@ -117,44 +112,37 @@ const QuizForm = (props) => {
     console.log("index",index)
   }
 
-  console.log("quiz",quiz)
-
   return <div>
-    <Head>
-      <title>答卷系统-新建答卷</title>
-      <link rel="icon" href="/favicon.ico" />
-    </Head>
-    <div className="main">
-      <SearchSelect resourceName="courses" mapper={(course) =>{
-        return {value: course.id, text: course.name}
-      }} onSelect={onSelect}/>
-
-      <div className="actionWrapper">
-        {
-          user.role_mask > 0 ? <div className="tableWrapper">
+    {
+      user.roles_mask > 0 ? <SearchSelect resourceName="courses" mapper={(course) =>{
+          return {value: course.id, text: course.name}
+        }} onSelect={onSelect}/> : null
+    }
+    <div className="actionWrapper">
+      {
+        user.roles_mask > 0 ? <div className="tableWrapper">
           <Table rowKey="id" pagination={{current: pager.page, total: pager.totalCount, onChange: pageOnChange}}
-          rowSelection={rowSelection} columns={columns} dataSource={questions} size="small" />
-          </div>: null
-        }
-        <div className="action">
-          <Button disabled={selectedRows.length === 0} onClick={onImport}>导入 &rarr;</Button>
-          <Button disabled={quiz.questions.length === 0} onClick={onHandle}>
-            {type === 'create' && "生成"}
-            {type === 'update' && "更新"}
-            &rarr;
-          </Button>
-          {/*<Button type="primary">添加</Button>*/}
-        </div>
-        <div className="tableWrapper">
-          <Input addonBefore="试卷名" value={quiz.name} onChange={(e) => {setQuiz({...quiz, name: e.target.value})}}/>
-          <TextArea
-            value={quiz.description}
-            onChange={(e) => {setQuiz({...quiz, description: e.target.value})}}
-            placeholder="添加试卷描述"
-            autoSize={{ minRows: 3, maxRows: 5 }}
-          />
-          <DragableTable columns={columns1} data={quiz.questions} setData={(qs) => {setQuiz({...quiz,questions: qs})}}/>
-        </div>
+                 rowSelection={rowSelection} columns={columns} dataSource={questions} size="small" />
+        </div>: null
+      }
+      <div className="action">
+        <Button disabled={selectedRows.length === 0} onClick={onImport}>导入 &rarr;</Button>
+        <Button disabled={quiz.questions.length === 0} onClick={onHandle}>
+          {type === 'create' && "生成"}
+          {type === 'update' && "更新"}
+          &rarr;
+        </Button>
+        {/*<Button type="primary">添加</Button>*/}
+      </div>
+      <div className="tableWrapper">
+        <Input addonBefore="试卷名" value={quiz.name} onChange={(e) => {setQuiz({...quiz, name: e.target.value})}}/>
+        <TextArea
+          value={quiz.description}
+          onChange={(e) => {setQuiz({...quiz, description: e.target.value})}}
+          placeholder="添加试卷描述"
+          autoSize={{ minRows: 3, maxRows: 5 }}
+        />
+        <DragableTable columns={columns1} data={quiz.questions} setData={(qs) => {setQuiz({...quiz,questions: qs})}}/>
       </div>
     </div>
     <style jsx>{`
@@ -163,13 +151,11 @@ const QuizForm = (props) => {
           margin: 20px auto 20px auto;
           color: #333;
         }
-        .main{
-          max-width: 1000px;
-          margin: auto;
-          padding: 20px 0;
-        }
         .tableWrapper{
           flex: 1
+        }
+        .tableWrapper > :global(*){
+          margin: 10px 0;
         }
         .action{
           display: flex;

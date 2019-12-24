@@ -15,7 +15,7 @@ const AnswerPaper = (props) => {
   });
 
   const { user } = props
-  const {answerPapers, initLoading, keyword, page, totalCount} = state
+  const {answerPapers, initLoading, page, totalCount} = state
 
   React.useEffect(() => {
     window.current_user = user
@@ -61,7 +61,7 @@ const AnswerPaper = (props) => {
   return (
     <div>
       <Head>
-        <title>答卷系统-首页</title>
+        <title>答卷系统</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 

@@ -1,13 +1,16 @@
 import React from 'react'
 import Head from 'next/head'
 import Nav from '../components/nav'
-import { List, Avatar, Button, Skeleton } from 'antd';
+import { List, Button, Skeleton } from 'antd';
 import axios from 'axios'
 import Link from 'next/link'
+
+const count = 3
 
 const Home = (props) => {
   const [state, setState] = React.useState({
     quizzes: [],
+    list: [],
     initLoading: true,
     page: 1,
     totalCount: 1,
@@ -15,7 +18,7 @@ const Home = (props) => {
   });
 
   const { user } = props
-  const {quizzes, initLoading, keyword, page, totalCount} = state
+  const {quizzes, list, initLoading, keyword, page, totalCount} = state
 
   React.useEffect(() => {
     window.current_user = user
@@ -27,25 +30,29 @@ const Home = (props) => {
   }
 
   const getQuizzes = (page) => {
-    setState({...state, initLoading: true})
+    setState({
+      ...state,
+      list: quizzes.concat([...new Array(count)].map(() => ({ loading: true, name: '', description: '', id: '', answerPapers: [] }))),
+      initLoading: true
+    })
     axios.get('/api/quizzes', {
       params: {
-        page,
-        keyword: state.keyword
+        page
       }
     }).then((response) =>{
       setState({
         ...state,
         quizzes: [...quizzes, ...response.data.quizzes],
+        list: [...quizzes, ...response.data.quizzes],
         initLoading: false,
-        page: response.data.page,
+        page: page,
         totalCount: response.data.totalCount
       })
     })
   }
 
   const loadMore =
-    !initLoading && (page*10 < totalCount) ? (
+    (!initLoading && (page*10 < totalCount)) ? (
       <div
         style={{
           textAlign: 'center',
@@ -72,13 +79,13 @@ const Home = (props) => {
           loading={initLoading}
           itemLayout="horizontal"
           loadMore={loadMore}
-          dataSource={quizzes}
+          dataSource={list}
           renderItem={item => (
             <List.Item
               key={item.id}
-              actions={[<a key="list-loadmore-edit">查看</a>]}
+              actions={[<span>已回答 {item.answerPapers.length}</span>]}
             >
-              <Skeleton avatar title={false} loading={initLoading} active>
+              <Skeleton avatar title={false} loading={item.loading} active>
                 <List.Item.Meta
                   title={<Link href={`/quizzes/${item.id}`}><a>{item.name}</a></Link>}
                   description={item.description}
@@ -94,6 +101,7 @@ const Home = (props) => {
           max-width: 800px;
           margin: auto;
           color: #333;
+          padding: 10px;
         }
       `}</style>
     </div>
