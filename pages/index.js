@@ -18,7 +18,7 @@ const Home = (props) => {
   });
 
   const { user } = props
-  const {quizzes, list, initLoading, keyword, page, totalCount} = state
+  const {quizzes, list, initLoading, page, totalCount} = state
 
   React.useEffect(() => {
     window.current_user = user
@@ -72,7 +72,7 @@ const Home = (props) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Nav user={user}/>
+      <Nav user={user} title="首页"/>
 
       <div className="main">
         <List

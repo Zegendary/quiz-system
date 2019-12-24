@@ -98,7 +98,7 @@ const QuizForm = (props) => {
       title: '操作',
       width: 130,
       render: (text, record, index) => <>
-        <Button size='small' onClick={() => editQuestion(text, index)}>编辑</Button>
+        <Button size='small' disabled onClick={() => editQuestion(text, index)}>编辑</Button>
         <Button size='small' style={{marginLeft: '4px'}} type="danger" onClick={() => deleteQuestion(index)}>删除</Button>
       </>
     }
@@ -109,7 +109,7 @@ const QuizForm = (props) => {
   }
 
   const deleteQuestion = (index) => {
-    console.log("index",index)
+    setQuiz({...quiz,questions: quiz.questions.filter((q,i) => i!==index)})
   }
 
   return <div>

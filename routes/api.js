@@ -182,18 +182,20 @@ router.get('/answerPapers', async (req, res, next) => {
   const queryParams = {...req.query}
   delete queryParams.page
   AnswerPaper.findAndCountAll({
-    offset: (req.params.page-1 || 0) * 10,
+    offset: (req.query.page-1 || 0) * 10,
     limit: 10,
     include: [{
       model: Quiz,
-      attributes: ['name']
+      attributes: {
+        exclude: ['questions'],
+      }
     }],
     where: queryParams
   }).then((result) => {
     res.send({
       status: 0,
       answerPapers: result.rows,
-      page: req.params.page || 1,
+      page: req.query.page || 1,
       totalCount: result.count
     })
   }).catch((e) => {

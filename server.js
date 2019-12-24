@@ -63,6 +63,10 @@ app.prepare().then(() => {
     return app.render(req, res, '/quizEdit', { id: req.params.id })
   })
 
+  server.get('/quizzes/:id/answerPapers', auth, (req, res) => {
+    return app.render(req, res, '/answerPapers', { quizId: req.params.id })
+  })
+
   server.get('/answerPapers/:id', auth, (req, res) => {
     return app.render(req, res, '/answerPaperShow', { id: req.params.id })
   })

@@ -5,21 +5,27 @@ import { List, Avatar, Button, Skeleton } from 'antd';
 import axios from 'axios'
 import Link from 'next/link'
 
+const count = 3
+
 const AnswerPaper = (props) => {
   const [state, setState] = React.useState({
     answerPapers: [],
+    list: [],
     initLoading: true,
     page: 1,
     totalCount: 1,
     keyword: ''
   });
 
+  const [quiz, setQuiz] = React.useState({})
+
   const { user } = props
-  const {answerPapers, initLoading, page, totalCount} = state
+  const {answerPapers, list, initLoading, page, totalCount} = state
 
   React.useEffect(() => {
     window.current_user = user
     getAnswerPapers(1)
+    getQuiz()
   }, [])
 
   const onLoadMore = () => {
@@ -27,7 +33,11 @@ const AnswerPaper = (props) => {
   }
 
   const getAnswerPapers = (page) => {
-    setState({...state, initLoading: true})
+    setState({
+      ...state,
+      list: answerPapers.concat([...new Array(count)].map(() => ({ loading: true, marks: [], }))),
+      initLoading: true
+    })
     axios.get('/api/answerPapers', {
       params: {
         page,
@@ -37,10 +47,17 @@ const AnswerPaper = (props) => {
       setState({
         ...state,
         answerPapers: [...answerPapers, ...response.data.answerPapers],
+        list: [...answerPapers, ...response.data.answerPapers],
         initLoading: false,
         page: response.data.page,
         totalCount: response.data.totalCount
       })
+    })
+  }
+
+  const getQuiz = () => {
+    axios.get(`/api/quizzes/${props.quizId}`).then((response) =>{
+      setQuiz(response.data.quiz)
     })
   }
 
@@ -68,20 +85,22 @@ const AnswerPaper = (props) => {
       <Nav user={user}/>
 
       <div className="main">
+        <p>{quiz.name}</p>
+        <p>{quiz.description}</p>
+        <p>答卷</p>
         <List
           loading={initLoading}
           itemLayout="horizontal"
           loadMore={loadMore}
-          dataSource={answerPapers}
+          dataSource={list}
           renderItem={item => (
             <List.Item
               key={item.id}
-              actions={[<a key="list-loadmore-edit">查看</a>]}
+              actions={[<span>{item.marks.filter(m => m).length}/{item.marks.length}</span>]}
             >
-              <Skeleton avatar title={false} loading={initLoading} active>
+              <Skeleton avatar title={false} loading={item.loading} active>
                 <List.Item.Meta
-                  title={<Link href={`/answerPapers/${item.id}`}><a>{item.name}</a></Link>}
-                  description={item.description}
+                  title={<Link href={`/answerPapers/${item.id}`}><a>1111</a></Link>}
                 />
               </Skeleton>
             </List.Item>
@@ -94,15 +113,16 @@ const AnswerPaper = (props) => {
           max-width: 800px;
           margin: auto;
           color: #333;
+          padding: 10px;
         }
       `}</style>
     </div>
   )
 }
 
-AnswerPaper.getInitialProps = ({req}) => {
+AnswerPaper.getInitialProps = ({req, query}) => {
   const current_user = req? req.current_user : window.current_user
-  return {user: current_user}
+  return {user: current_user, quizId: query.quizId}
 }
 
 export default AnswerPaper

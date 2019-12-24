@@ -35,7 +35,7 @@ const Dashboard = (props) => {
       title: '回答数量',
       dataIndex: 'answerPapers',
       render: (text, record, index) => {
-        return <a href={`/answerPapers?quizId=${record.id}`}>{text.length}</a>
+        return <a href={`/quizzes/${record.id}/answerPapers`}>{text.length}</a>
       }
     }
   ];

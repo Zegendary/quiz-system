@@ -2,8 +2,9 @@ import React from 'react'
 import Link from 'next/link'
 import { Button } from 'antd'
 
-const Nav = ({user}) => (
+const Nav = ({user, title}) => (
   <nav>
+    <div>{title}</div>
     {
       user ? <ul>
         <li>
@@ -37,6 +38,7 @@ const Nav = ({user}) => (
       }
       ul {
         padding: 10px 0;
+        margin: 0;
         flex: 1;
         display: flex;
         justify-content: flex-end;
