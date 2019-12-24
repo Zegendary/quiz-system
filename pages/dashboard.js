@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react'
 import Head from 'next/head'
 import axios from 'axios'
 import {Table, Tabs} from 'antd'
+import Nav from '../components/nav'
 
 const { TabPane } = Tabs;
 
@@ -93,6 +94,7 @@ const Dashboard = (props) => {
       <title>答卷系统-工作台</title>
       <link rel="icon" href="/favicon.ico" />
     </Head>
+    <Nav user={props.user} title="工作台"/>
     <div id="dashboard" className="container">
       <Tabs defaultActiveKey="1">
         <TabPane tab="我创建的答卷" key="1">

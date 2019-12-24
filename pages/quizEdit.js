@@ -3,6 +3,7 @@ import Head from 'next/head'
 import axios from 'axios'
 import QuizForm from '../components/quizForm'
 import {notification} from 'antd'
+import Nav from '../components/nav'
 
 const QuizCreate = (props) => {
   const [quiz, setQuiz] = React.useState({
@@ -38,6 +39,7 @@ const QuizCreate = (props) => {
       <title>答卷系统-新建答卷</title>
       <link rel="icon" href="/favicon.ico" />
     </Head>
+    <Nav user={props.user} title="编辑试卷"/>
     <div className="main">
       <QuizForm user={props.user} quiz={quiz} setQuiz={setQuiz} type="update" onHandle={onUpdate}/>
     </div>

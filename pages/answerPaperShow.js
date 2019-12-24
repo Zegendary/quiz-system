@@ -1,7 +1,8 @@
 import React from 'react'
 import Head from 'next/head'
 import axios from 'axios'
-import {Button, Checkbox, Row, Col, Modal} from 'antd'
+import {Button, Checkbox, Row, Col} from 'antd'
+import Nav from '../components/nav'
 import Link from 'next/link'
 
 const AnswerPaperShow = (props) => {
@@ -27,6 +28,7 @@ const AnswerPaperShow = (props) => {
       <title>答卷系统</title>
       <link rel="icon" href="/favicon.ico"/>
     </Head>
+    <Nav user={props.user} title="答卷详情"/>
     <div className="answerPaperContainer">
       <div className="answerPaperHeader">
         <h4>{quiz.name}</h4>

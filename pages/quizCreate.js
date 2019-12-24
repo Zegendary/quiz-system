@@ -1,9 +1,8 @@
 import React, {useState, useEffect} from 'react'
 import Head from 'next/head'
-import SearchSelect from '../components/searchSelect'
 import axios from 'axios'
-import { Table, Button, Modal, Input, notification } from 'antd'
-import DragableTable from '../components/DragableTable'
+import { Input, notification } from 'antd'
+import Nav from '../components/nav'
 import QuizForm from '../components/quizForm'
 
 
@@ -53,6 +52,7 @@ const QuizCreate = (props) => {
       <title>答卷系统-新建答卷</title>
       <link rel="icon" href="/favicon.ico" />
     </Head>
+    <Nav user={props.user} title="新建试卷"/>
     <div className="main">
       <QuizForm user={props.user} quiz={quiz} setQuiz={setQuiz} type="create" onHandle={onCreate}/>
     </div>

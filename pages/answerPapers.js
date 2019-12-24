@@ -82,7 +82,7 @@ const AnswerPaper = (props) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Nav user={user}/>
+      <Nav user={user} title="答卷列表"/>
 
       <div className="main">
         <p>{quiz.name}</p>
