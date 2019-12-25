@@ -1,12 +1,7 @@
+const { taskCenterConfig } = require('../config')
 const { Pool } = require('pg');
 
-const pool = new Pool({
-  user: 'zhangxinwang',
-  host: 'localhost',
-  database: 'task_center_development',
-  password: '',
-  port: 5432,
-});
+const pool = new Pool(taskCenterConfig);
 
 module.exports = {
   query: (text, params) => pool.query(text, params),
