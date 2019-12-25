@@ -72,7 +72,7 @@ const Home = (props) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Nav user={user} title="首页"/>
+      <Nav user={user}/>
 
       <div className="main">
         <List

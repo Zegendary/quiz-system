@@ -1,7 +1,7 @@
 import React from 'react'
 import Head from 'next/head'
 import axios from 'axios'
-import {Button, Checkbox, Row, Col, Modal} from 'antd'
+import {Button, Checkbox, Row, Col, Modal, message} from 'antd'
 
 const QuizShow = (props) => {
   const [quiz, setQuiz] = React.useState({
@@ -45,7 +45,17 @@ const QuizShow = (props) => {
     })
   }
 
+  const hasEmptyAnswer = () => {
+    return answers.some(answer => {
+      return answer.answer === null && answer.choices.length === 0
+    })
+  }
+
   const submitAnswerPaper = () => {
+    if(hasEmptyAnswer()){
+      message.error('题目未答完')
+      return
+    }
     axios.post('/api/answerPapers',{
       answers,
       quizId: quiz.id,
@@ -60,7 +70,7 @@ const QuizShow = (props) => {
         ),
         okText: "查看答卷",
         onOk() {
-          console.log('跳转')
+          window.location.href=`/answerPapers/${data.answerPaper.id}`
         },
       });
     }).catch((e) => {

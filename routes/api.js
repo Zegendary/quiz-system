@@ -57,14 +57,14 @@ router.get('/quizzes', async (req, res, next) => {
   const queryParams = {...req.query}
   delete queryParams.page
   Quiz.findAndCountAll({
-    offset: (req.query.page-1 || 0) * 10,
-    limit: 10,
+      offset: (req.query.page-1 || 0) * 10,
+      limit: 10,
     order: [['createdAt', 'DESC']],
-    include: [{model: AnswerPaper}],
-    attributes: {
-      exclude: ['questions'],
-    },
-    where: queryParams
+      include: [{model: AnswerPaper}],
+      attributes: {
+        exclude: ['questions'],
+      },
+      where: queryParams
   }).then((result) => {
     res.send({
       status: 0,
@@ -181,27 +181,40 @@ router.post('/answerPapers', async (req, res, next) => {
 router.get('/answerPapers', async (req, res, next) => {
   const queryParams = {...req.query}
   delete queryParams.page
-  AnswerPaper.findAndCountAll({
-    offset: (req.query.page-1 || 0) * 10,
-    limit: 10,
-    include: [{
-      model: Quiz,
-      attributes: {
-        exclude: ['questions'],
+  try {
+    const result = await AnswerPaper.findAndCountAll({
+      offset: (req.query.page-1 || 0) * 10,
+      limit: 10,
+      order: [['createdAt', 'DESC']],
+      include: [{
+        model: Quiz,
+        attributes: {
+          exclude: ['questions'],
+        }
+      }],
+      where: queryParams
+    })
+    const userIds = result.rows.map(r => r.dataValues.creatorId)
+    const {rows} = await taskCenterDb.query("SELECT * FROM users WHERE id = ANY($1)", [userIds])
+    const answerPapers = result.rows.map(r => {
+      const creator = rows.filter(row => row.id === r.dataValues.creatorId)[0]
+      return {
+        ...r.dataValues,
+        creatorName: creator.nickname || creator.phone,
+        creatorAvatar: creator.avatar
       }
-    }],
-    where: queryParams
-  }).then((result) => {
+    })
+
     res.send({
       status: 0,
-      answerPapers: result.rows,
+      answerPapers: answerPapers,
       page: req.query.page || 1,
       totalCount: result.count
     })
-  }).catch((e) => {
+  }catch (e) {
     console.log(e)
     res.send({status: 1,errorMsg: '数据库异常或者你没有权限'});
-  })
+  }
 })
 
 router.get('/answerPapers/:id', async (req, res, next) => {

@@ -16,6 +16,7 @@ const AnswerPaperShow = (props) => {
   const [quiz, setQuiz] = React.useState({})
 
   React.useEffect(() => {
+    window.current_user = props.user
     axios.get(`/api/answerPapers/${props.answerPaperId}`).then(({data}) => {
       setQuizSnapshot(data.quizSnapshot)
       setAnswerPaper(data.answerPaper)

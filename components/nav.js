@@ -2,29 +2,36 @@ import React from 'react'
 import Link from 'next/link'
 import { Button } from 'antd'
 
-const Nav = ({user, title}) => (
-  <nav>
-    <div>{title}</div>
-    {
-      user ? <ul>
-        <li>
-          <Link href="/dashboard">
-            <a><Button>工作台 &rarr;</Button></a>
-          </Link>
-        </li>
-        <li>
-          <Link href="/createQuiz">
-            <a><Button>新建答卷 &rarr;</Button></a>
-          </Link>
-        </li>
-      </ul>: <ul>
-        <li>
-          <a href="https://user.xiedaimala.com">登录</a>
-        </li>
-      </ul>
-    }
+const Nav = (props) => {
+  const {user} = props
+  return (
+    <nav>
+      <div>
+        <Link href="/">
+          <a>首页</a>
+        </Link>
+        {props.title?`/${props.title}`:''}
+      </div>
+      {
+        user ? <ul>
+          <li>
+            <Link href="/dashboard">
+              <a><Button>工作台 &rarr;</Button></a>
+            </Link>
+          </li>
+          <li>
+            <Link href="/createQuiz">
+              <a><Button>新建答卷 &rarr;</Button></a>
+            </Link>
+          </li>
+        </ul>: <ul>
+          <li>
+            <a href="https://user.xiedaimala.com">登录</a>
+          </li>
+        </ul>
+      }
 
-    <style jsx>{`
+      <style jsx>{`
       :global(body) {
         margin: 0;
         font-family: -apple-system, BlinkMacSystemFont, Avenir Next, Avenir,
@@ -33,6 +40,7 @@ const Nav = ({user, title}) => (
       nav {
         max-width: 800px;
         margin: auto;
+        padding: 0 10px;
         display: flex;
         align-items: center;
       }
@@ -48,7 +56,8 @@ const Nav = ({user, title}) => (
         padding: 6px 8px;
       }
     `}</style>
-  </nav>
-)
+    </nav>
+  )
+}
 
 export default Nav

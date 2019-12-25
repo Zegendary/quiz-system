@@ -4,6 +4,8 @@ import Nav from '../components/nav'
 import { List, Avatar, Button, Skeleton } from 'antd';
 import axios from 'axios'
 import Link from 'next/link'
+import cdn from '../lib/cdn'
+import {dateFormat} from '../lib/formattor'
 
 const count = 3
 
@@ -35,7 +37,7 @@ const AnswerPaper = (props) => {
   const getAnswerPapers = (page) => {
     setState({
       ...state,
-      list: answerPapers.concat([...new Array(count)].map(() => ({ loading: true, marks: [], }))),
+      list: answerPapers.concat([...new Array(count)].map(() => ({ loading: true, marks: [], creatorName: '', avatar: '' }))),
       initLoading: true
     })
     axios.get('/api/answerPapers', {
@@ -85,9 +87,8 @@ const AnswerPaper = (props) => {
       <Nav user={user} title="答卷列表"/>
 
       <div className="main">
-        <p>{quiz.name}</p>
+        <h2>{quiz.name}</h2>
         <p>{quiz.description}</p>
-        <p>答卷</p>
         <List
           loading={initLoading}
           itemLayout="horizontal"
@@ -96,11 +97,13 @@ const AnswerPaper = (props) => {
           renderItem={item => (
             <List.Item
               key={item.id}
-              actions={[<span>{item.marks.filter(m => m).length}/{item.marks.length}</span>]}
+              actions={[<span>得分：{item.marks.filter(m => m).length}/{item.marks.length}</span>]}
             >
               <Skeleton avatar title={false} loading={item.loading} active>
                 <List.Item.Meta
-                  title={<Link href={`/answerPapers/${item.id}`}><a>1111</a></Link>}
+                  avatar={<Avatar src={cdn(item.creatorAvatar)}/>}
+                  title={<Link href={`/answerPapers/${item.id}`}><a>{item.creatorName}</a></Link>}
+                  description={dateFormat(item.createdAt, "MM-dd hh:mm")}
                 />
               </Skeleton>
             </List.Item>
