@@ -36,7 +36,7 @@ app.prepare().then(() => {
     }catch (e) {
       console.log(e)
       if(!dev){
-        res.redirect(`https://xiedaimala.com/sign_in/?redirect_to=${req.originalUrl}`)
+        res.redirect(`https://xiedaimala.com/sign_in/?redirect_to=${req.headers.referer}`)
       }
       next()
     }
